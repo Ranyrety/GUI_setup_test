@@ -22,4 +22,4 @@ include(hello_imgui_add_app)
 ##########################################################
 hello_imgui_add_app(hello_world main.cpp)
 add_dependencies( hello_world emulatorLib )
-target_link_libraries(hello_world ${emuLib})
+target_link_libraries(hello_world PRIVATE ${emuLib})
