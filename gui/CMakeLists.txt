@@ -20,6 +20,11 @@ include(hello_imgui_add_app)
 ##########################################################
 # Build your app
 ##########################################################
-hello_imgui_add_app(hello_world main.cpp)
+file(GLOB TEXTEDITOR_SRC
+    ImGuiColorTextEditor/*.cpp
+    ImGuiColorTextEditor/*.h
+)
+hello_imgui_add_app(hello_world main.cpp ImGuiColorTextEdit/TextEditor.cpp )
+target_include_directories(hello_world PUBLIC ImGuiColorTextEdit imgui_club/imgui_memory_editor)
 add_dependencies( hello_world emulatorLib )
 target_link_libraries(hello_world PRIVATE ${emuLib})

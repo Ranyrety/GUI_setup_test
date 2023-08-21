@@ -1,26 +1,28 @@
 #include "hello_imgui/hello_imgui.h"
+#include "TextEditor.h"
+#include "imgui_memory_editor.h"
 
 int main(int , char *[])
 {
-
     bool showDemo = true;
     HelloImGui::RunnerParams runnerParams;
     runnerParams.appWindowParams.windowTitle = "M6800 - emulator gui demo";
     runnerParams.appWindowParams.windowGeometry.size = { 800,600 };
 
-    runnerParams.callbacks.ShowGui =  [] {
+            MemoryEditor memEditor;
+            memEditor.Cols = 8;
+            char buff[0xFFFF];
+            char* codeBuf = (char*)calloc(1024, sizeof(uint8_t));
+            TextEditor editor;
+            
+    runnerParams.callbacks.ShowGui =  [&editor, codeBuf, &memEditor, buff] {
         // Left
             static int selected = 0;
+            
         {
             ImGui::BeginChild("left pane", ImVec2(ImGui::GetWindowWidth() * 0.40, -ImGui::GetFrameHeightWithSpacing()), true);
-            for (int i = 0; i < 100; i++)
-            {
-                // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
-                char label[128];
-                sprintf(label, "MyObject %d", i);
-                if (ImGui::Selectable(label, selected == i))
-                    selected = i;
-            }
+            //ImGui::ShowDemoWindow(nullptr);
+            editor.Render("Dissasembly");
             ImGui::EndChild();
         }
         ImGui::SameLine();
@@ -28,23 +30,12 @@ int main(int , char *[])
         // Right
         {
             ImGui::BeginGroup();
-            ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+            ImGui::BeginChild("item view", ImVec2(0, 150)); // Leave room for 1 line below us
             ImGui::Text("MyObject: %d", selected);
+            ImGui::EndChild();
             ImGui::Separator();
-            if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
-            {
-                if (ImGui::BeginTabItem("Description"))
-                {
-                    ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
-                    ImGui::EndTabItem();
-                }
-                if (ImGui::BeginTabItem("Details"))
-                {
-                    ImGui::Text("ID: 0123456789");
-                    ImGui::EndTabItem();
-                }
-                ImGui::EndTabBar();
-            }
+            ImGui::BeginChild("Memory", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+            memEditor.DrawContents((void*)buff, sizeof(buff), sizeof(char));
             ImGui::EndChild();
             if (ImGui::Button("Revert")) {}
             ImGui::SameLine();
