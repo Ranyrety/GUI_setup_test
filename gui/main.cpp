@@ -1,6 +1,8 @@
 #include "hello_imgui/hello_imgui.h"
 #include "TextEditor.h"
 #include "imgui_memory_editor.h"
+#include "utilities.h"
+#include "mpu.h"
 
 int main(int , char *[])
 {
@@ -11,18 +13,49 @@ int main(int , char *[])
 
             MemoryEditor memEditor;
             memEditor.Cols = 8;
-            char buff[0xFFFF];
             char* codeBuf = (char*)calloc(1024, sizeof(uint8_t));
             TextEditor editor;
-            
-    runnerParams.callbacks.ShowGui =  [&editor, codeBuf, &memEditor, buff] {
-        // Left
-            static int selected = 0;
-            
+                Emulator::Mpu mpu;
+            bool dataLoaded = false;
+            std::vector<HexRecord> hexRecords = parseHex("test01.hex");
+
+            if (!hexRecords.empty())
+
+                dataLoaded = true;
+
+            if (dataLoaded) {
+                std::cout << "Hello m6800 emulator is greeting you" << std::endl;
+                mpu.init(hexRecords[0].data, hexRecords[0].address);
+                mpu.setAccA(0x00);
+                mpu.setAccB(0x01);
+                //act
+            }
+                int cycles = mpu.execute();
+                auto buff = mpu.getMemory().getData();
+    runnerParams.callbacks.ShowGui =  [&editor, codeBuf, &memEditor,  buff] {
         {
             ImGui::BeginChild("left pane", ImVec2(ImGui::GetWindowWidth() * 0.40, -ImGui::GetFrameHeightWithSpacing()), true);
-            //ImGui::ShowDemoWindow(nullptr);
-            editor.Render("Dissasembly");
+            
+            if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+            {
+                if (ImGui::BeginTabItem("Operations"))
+                {
+                    for (int i = 0; i < 1024; i++) {
+                        char label[128];
+                        sprintf(label, "%04d :: %02X ", i, (uint8_t)buff[i]);
+                        ImGui::Text(label);
+                    }
+                    ImGui::EndTabItem();
+                }
+
+                if (ImGui::BeginTabItem("Disassembly"))
+                {
+                    ImGui::TextWrapped("Here is going to be shown disassembled code if it will be possible to achieve");
+                    editor.Render("Dissasembly");
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
+            }
             ImGui::EndChild();
         }
         ImGui::SameLine();
@@ -31,11 +64,11 @@ int main(int , char *[])
         {
             ImGui::BeginGroup();
             ImGui::BeginChild("item view", ImVec2(0, 150)); // Leave room for 1 line below us
-            ImGui::Text("MyObject: %d", selected);
+            ImGui::Text("MyObject: 0002");
             ImGui::EndChild();
             ImGui::Separator();
             ImGui::BeginChild("Memory", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-            memEditor.DrawContents((void*)buff, sizeof(buff), sizeof(char));
+            memEditor.DrawContents((void*)buff, 0xFFFF, sizeof(char));
             ImGui::EndChild();
             if (ImGui::Button("Revert")) {}
             ImGui::SameLine();

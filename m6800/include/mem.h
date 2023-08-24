@@ -22,7 +22,7 @@ struct Memory{
 
     void writeByte(uint16_t addr, uint8_t data);
     void writeWord(uint16_t addr, uint16_t data);
-
+    uint8_t* getData() { return data; };
     private:
     uint8_t data[0xFFFF];
     

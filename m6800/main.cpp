@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
         dataLoaded = true;
 
     if (dataLoaded) {
-        std::cout << "Hellow m6800 emulator is greeting you" << std::endl;
+        std::cout << "Hello m6800 emulator is greeting you" << std::endl;
         Emulator::Mpu mpu;
         mpu.init(hexRecords[0].data,hexRecords[0].address);
         mpu.setAccA(0x00);

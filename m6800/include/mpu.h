@@ -84,7 +84,15 @@ namespace Emulator {
         void setPC(uint16_t addr);
         CondCodeReg *getCondCodeReg(){return &mCondCodeReg;};
         void writeData(uint16_t addr, uint8_t data);
+        Memory& getMemory() { return mMem; }
     private:
+        CondCodeReg mCondCodeReg;
+        uint8_t mAccA;
+        uint8_t mAccB;
+        uint16_t mXReg;
+        uint16_t mPCReg;
+        uint16_t mSPReg;
+        Memory mMem;
         uint8_t readData(uint16_t addr);
         int decode(uint8_t opCode);
         /*Depending on mode adds to accumulator acc either data directly or data pointed by address
@@ -163,14 +171,6 @@ namespace Emulator {
         int tsx();
         int txs();
         int wai();
-
-        CondCodeReg mCondCodeReg;
-        uint8_t mAccA;
-        uint8_t mAccB;
-        uint16_t mXReg;
-        uint16_t mPCReg;
-        uint16_t mSPReg;
-        Memory mMem;
     };
 
     static constexpr uint8_t
