@@ -20,6 +20,12 @@ namespace Emulator{
     void Mpu::init(std::vector<uint8_t>& data){
         reset();
         mMem.load(data);
+        mCondCodeReg.resetCFlag();
+        mCondCodeReg.resetZFlag();
+        mCondCodeReg.resetHFlag();
+        mCondCodeReg.resetIFlag();
+        mCondCodeReg.resetVFlag();
+        mCondCodeReg.resetNFlag();
     }
 
     void Mpu::init(std::vector<uint8_t>& data, uint16_t address) {
