@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(gui_with_helloimgui)
 set(CMAKE_CXX_STANDARD 17)
 set(emuLib "emulatorLib")
+set(utils "UTILITIES_LIB")
 ##########################################################
 # Prepare hello_imgui during configure time
 ##########################################################
@@ -20,6 +21,14 @@ include(hello_imgui_add_app)
 ##########################################################
 # Build your app
 ##########################################################
-hello_imgui_add_app(hello_world main.cpp)
+file(GLOB TEXTEDITOR_SRC
+    ImGuiColorTextEditor/*.cpp
+    ImGuiColorTextEditor/*.h
+)
+hello_imgui_add_app(hello_world main.cpp ImGuiColorTextEdit/TextEditor.cpp )
+target_include_directories(hello_world PUBLIC ImGuiColorTextEdit imgui_club/imgui_memory_editor)
 add_dependencies( hello_world emulatorLib )
+add_dependencies( hello_world UTILITIES_LIB)
+
 target_link_libraries(hello_world PRIVATE ${emuLib})
+target_link_libraries(hello_world PRIVATE ${utils})

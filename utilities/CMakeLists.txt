@@ -1,5 +1,4 @@
 # Set the library name
-# set(UTILITIES_LIB utilities)
 project(UTILITIES_LIB)
 
 # Add the source files using GLOB

@@ -21,4 +21,4 @@ target_include_directories(emulator_main PUBLIC "${PROJECT_SOURCE_DIR}/include")
 add_dependencies( emulator_main emulatorLib )
 
 target_link_libraries(emulator_main emulatorLib )
-target_link_libraries(emulator_main UTILITIES_LIB)
+target_link_libraries(emulator_main UTILITIES_LIB )
