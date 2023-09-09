@@ -34,9 +34,8 @@ Open directory in visual studio, after configuring select test_gui target to bui
 Clone repository
 
 	git clone https://github.com/Ranyrety/GUI_setup_test.git
-	cd GUI_setup_test
-	mkdir build
-	cd build && cmake ..
+	cd GUI_setup_test/build
+	cmake ..
 	make -j %numberOfParrarelThreads
 
 
