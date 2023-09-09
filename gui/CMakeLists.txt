@@ -25,10 +25,10 @@ file(GLOB TEXTEDITOR_SRC
     ImGuiColorTextEditor/*.cpp
     ImGuiColorTextEditor/*.h
 )
-hello_imgui_add_app(hello_world main.cpp ImGuiColorTextEdit/TextEditor.cpp )
-target_include_directories(hello_world PUBLIC ImGuiColorTextEdit imgui_club/imgui_memory_editor)
-add_dependencies( hello_world emulatorLib )
-add_dependencies( hello_world UTILITIES_LIB)
+hello_imgui_add_app(test_gui main.cpp ImGuiColorTextEdit/TextEditor.cpp )
+target_include_directories(test_gui PUBLIC ImGuiColorTextEdit imgui_club/imgui_memory_editor)
+add_dependencies( test_gui emulatorLib )
+add_dependencies( test_gui UTILITIES_LIB)
 
-target_link_libraries(hello_world PRIVATE ${emuLib})
-target_link_libraries(hello_world PRIVATE ${utils})
+target_link_libraries(test_gui PRIVATE ${emuLib})
+target_link_libraries(test_gui PRIVATE ${utils})
