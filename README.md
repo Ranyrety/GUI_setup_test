@@ -26,7 +26,7 @@ I'm using [hello_imgui](https://github.com/pthom/hello_imgui) project for settin
 
 Open directory in visual studio, after configuring select test_gui target to build and launch
 
-![target selection](docAssets/selectTarget_pic.png)
+![target selection](docsAssets/selectTarget_pic.png)
 
 
 #### Linux
