@@ -1,0 +1,31 @@
+name: Build
+
+on: push
+
+jobs:
+  build:
+    name: Build with gcc
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout#usage
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # https://github.com/pthom/hello_imgui/blob/master/.github/workflows/Ubuntu_vcpkg.yml
+
+      - name: Install needed libraries
+        run: sudo apt-get update && sudo apt-get install -y libxrandr-dev xorg-dev libxinerama-dev
+
+      - name: Check gcc
+        run: gcc   --version
+      - name: Check cmake
+        run: cmake --version
+
+      - name: Configure
+        # Pipe character (|) creates multi-line value here
+        run: |
+            cd build
+            cmake ..
