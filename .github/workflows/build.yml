@@ -8,7 +8,7 @@ jobs:
     name: Build with gcc
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout with submodules
@@ -32,3 +32,10 @@ jobs:
         run: gcc   --version
       - name: Check cmake
         run: cmake --version
+
+      - name: Run cmake
+        # Pipe character (|) creates multi-line value here
+        run: |
+          cd build
+          ls -l
+          cmake ./..
