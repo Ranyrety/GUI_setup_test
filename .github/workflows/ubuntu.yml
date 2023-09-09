@@ -29,3 +29,8 @@ jobs:
         run: |
             cd build
             cmake ..
+      - name: Build
+        # Pipe character (|) creates multi-line value here
+        run: |
+            cd build
+            make ..
