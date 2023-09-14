@@ -25,8 +25,8 @@ file(GLOB TEXTEDITOR_SRC
     ImGuiColorTextEditor/*.cpp
     ImGuiColorTextEditor/*.h
 )
-hello_imgui_add_app(test_gui main.cpp ImGuiColorTextEdit/TextEditor.cpp )
-target_include_directories(test_gui PUBLIC ImGuiColorTextEdit imgui_club/imgui_memory_editor)
+hello_imgui_add_app(test_gui main.cpp src/L2DFileDialog.h ImGuiColorTextEdit/TextEditor.cpp )
+target_include_directories(test_gui PUBLIC src ImGuiColorTextEdit imgui_club/imgui_memory_editor)
 add_dependencies( test_gui emulatorLib )
 add_dependencies( test_gui UTILITIES_LIB)
 
