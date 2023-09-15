@@ -654,11 +654,13 @@ int main(int , char *[])
                 //All ui is currently draw in this function
     runnerParams.callbacks.ShowGui =  [&isFileSelected, &path, &mpu, &editor, codeBuf, &memEditor] () {
         {
+            bool executeNextOperation = ImGui::Shortcut(ImGuiKey_F10, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
             if (ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
                 {
-                    if (ImGui::MenuItem("Open", NULL,false)) {
+                    
+                    if (ImGui::MenuItem("Open", "CTRL+O",false)) {
                         showFileDialog = true;
                     }
                     ImGui::EndMenu();
@@ -666,7 +668,9 @@ int main(int , char *[])
                 if (ImGui::BeginMenu("Edit"))
                 {
                     if (ImGui::MenuItem("Undo", "CTRL+Z", false, false)) {}
-                    if (ImGui::MenuItem("Next", "F10", false)) {}  // Disabled item
+                    if (ImGui::MenuItem("Next", "F10", false)) {
+                        executeNextOperation = true;
+                    }  // Disabled item
                     ImGui::Separator();
                     if (ImGui::MenuItem("Cut", "CTRL+X")) {}
                     if (ImGui::MenuItem("Copy", "CTRL+C")) {}
@@ -677,10 +681,12 @@ int main(int , char *[])
             }
             if (showFileDialog) {
                 FileDialog::ShowFileDialog(&showFileDialog, path, 128);
-                //fsPath = { path };
-                if (!showFileDialog/*std::filesystem::exists(fsPath)*/) {
+                if (!showFileDialog) {
                     load(path, mpu);
                 }
+            }
+            if (executeNextOperation) {
+                mpu.execute();
             }
             ImGui::BeginChild("left pane", ImVec2(ImGui::GetWindowWidth() * 0.30, -ImGui::GetFrameHeightWithSpacing()), true);
             ImGui::PushFont(gCustomFont);
