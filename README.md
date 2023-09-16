@@ -7,6 +7,12 @@ I'm using [hello_imgui](https://github.com/pthom/hello_imgui) project for settin
 
 ## Prerequisites
 
+#### Git submodules
+
+Some components (ie MemoryEditor)  are included by using git submodules.
+After cloning this repository run
+`git submodule update --init --recursive` 
+
 #### Windows
 
 - CMake min. 3.12
@@ -17,6 +23,10 @@ I'm using [hello_imgui](https://github.com/pthom/hello_imgui) project for settin
 - CMake 3.12
 - C++ compiler with C++17c standard support
 - OpenGL Dev library
+- libxi-dev
+- libxinerama-dev
+- libxrandr-dev
+- libx11-dev
 
 #### Emscripten on Linux
 
@@ -35,6 +45,7 @@ Clone repository
 
 	git clone https://github.com/Ranyrety/GUI_setup_test.git
 	cd GUI_setup_test/build
+ 	git submodule update --init --recursive
 	cmake ..
 	make -j %numberOfParrarelThreads
 
