@@ -45,10 +45,9 @@ namespace Emulator
     }
 
     void Memory::writeWord(uint16_t addr, uint16_t data) {
-        uint8_t bytes[2]{
-            (data >> 0) & 0xFF,
-           (data >> 8) & 0xFF
-        };
+        uint8_t bytes[2];
+        bytes[0] = (data >> 0) & 0xFF;
+        bytes[1] = (data >> 8) & 0xFF;
         this->data[addr] = bytes[1];
         this->data[addr + 1] = bytes[0];
     }
