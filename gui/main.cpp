@@ -3,6 +3,9 @@
 #include "imgui_memory_editor.h"
 #include "mpu.h"
 #include "utilities.h"
+#include "L2DFileDialog.h"
+
+static bool showFileDialog = false;
 
 void itoab(uint8_t val, char* buff) {
     if (val != 0) {
@@ -590,6 +593,41 @@ std::vector<DissasemblyInfo> disassemble(HexRecord &record) {
     return result;
 }
 
+//global variables only for demo
+std::vector<HexRecord> hexRecords;
+std::vector<DissasemblyInfo> dissasemblyInfo = std::vector<DissasemblyInfo>();
+auto dissasemblyOutputBuffer = std::vector<std::string>();
+std::filesystem::path fsPath;
+bool fileLoaded = false;
+bool dirty;
+uint8_t* buff;
+//load and parse hex file, prepare disassembly
+void load(const char* path, Emulator::Mpu& mpu) {
+    hexRecords = parseHex(path);
+    if (!hexRecords.empty()) {
+        mpu.init(hexRecords[0].data, hexRecords[0].address);
+        mpu.setAccA(0x00);
+        mpu.setAccB(0x01);
+
+        dirty = true;
+
+        for (auto it = hexRecords.begin(); it != hexRecords.end(); ++it) {
+            if (it->type == 0x01) {
+                continue;
+            }
+            else {
+                dissasemblyInfo = disassemble(*it);
+            }
+        }
+        for (int i = 0; i < 1024; i++) {
+            char label[20];
+            sprintf(label, "%04X :: %s ", i, "ERROR");
+            dissasemblyOutputBuffer.emplace_back(std::string(label));
+        }
+        fileLoaded = true;
+    }
+}
+
 int main(int , char *[])
 {
     bool showDemo = true;
@@ -603,43 +641,54 @@ int main(int , char *[])
             TextEditor editor;
             Emulator::Mpu mpu;
             bool dataLoaded = false;
-            std::vector<HexRecord> hexRecords = parseHex("test01.hex");
-
-            if (!hexRecords.empty())
-                dataLoaded = true;
-            if (dataLoaded) {
-                mpu.init(hexRecords[0].data, hexRecords[0].address);
-                mpu.setAccA(0x00);
-                mpu.setAccB(0x01);
-            }
-
-                auto buff = mpu.getMemory().getData();
-                bool dirty = true;
-                std::vector<DissasemblyInfo> dissasemblyInfo = std::vector<DissasemblyInfo>();
             
-                for (auto it = hexRecords.begin(); it != hexRecords.end(); ++it) {
-                    if (it->type == 0x01) {
-                        continue;
-                    }
-                    else {
-                        dissasemblyInfo = disassemble(*it);
-                    }
-                }
-
-                auto dissasemblyOutputBuffer = std::vector<std::string>();
-                for (int i = 0; i < 1024; i++) {
-                    char label[20];
-                            sprintf(label, "%04X :: %s ", i, "ERROR");
-                            dissasemblyOutputBuffer.emplace_back(std::string(label));
-                }
-
-                memEditor.OptShowDataPreview = true;
-                memEditor.OptShowOptions = true;
-                memEditor.OptUpperCaseHex = true;
-                memEditor.Cols = 8;
-
-    runnerParams.callbacks.ShowGui =  [&mpu, &editor, codeBuf, &memEditor,  buff, dirty, &dissasemblyInfo, &dissasemblyOutputBuffer] () {
+            buff = mpu.getMemory().getData();
+            //Configuring memory editor
+            memEditor.OptShowDataPreview = true;
+            memEditor.OptShowOptions = true;
+            memEditor.OptUpperCaseHex = true;
+            memEditor.Cols = 8;
+            bool isFileSelected , isFileDialogOpen = false;
+            char path[128];
+            path[127] = '\n';
+                //All ui is currently draw in this function
+    runnerParams.callbacks.ShowGui =  [&isFileSelected, &path, &mpu, &editor, codeBuf, &memEditor] () {
         {
+            bool executeNextOperation = ImGui::Shortcut(ImGuiKey_F10, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
+            showFileDialog = showFileDialog || ImGui::Shortcut(ImGuiModFlags_Ctrl | ImGuiKey_O, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    
+                    if (ImGui::MenuItem("Open", "CTRL+O",false)) {
+                        showFileDialog = true;
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("Edit"))
+                {
+                    if (ImGui::MenuItem("Undo", "CTRL+Z", false, false)) {}
+                    if (ImGui::MenuItem("Next", "F10", false)) {
+                        executeNextOperation = true;
+                    }  // Disabled item
+                    ImGui::Separator();
+                    if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+                    if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+                    if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
+            if (showFileDialog) {
+                FileDialog::ShowFileDialog(&showFileDialog, path, 128);
+                if (!showFileDialog) {
+                    load(path, mpu);
+                }
+            }
+            if (executeNextOperation) {
+                mpu.execute();
+            }
             ImGui::BeginChild("left pane", ImVec2(ImGui::GetWindowWidth() * 0.30, -ImGui::GetFrameHeightWithSpacing()), true);
             ImGui::PushFont(gCustomFont);
             if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
@@ -649,14 +698,23 @@ int main(int , char *[])
                     char descTxt[128];
                     sprintf(descTxt, "Address:: Label  Operands");
                     ImGui::Text(descTxt);
-                    for (int i = 0; i < dissasemblyInfo.size(); i++) {
-                        char str[20];
-                        sprintf(str, "%04X :: %s %04X", 
-                            dissasemblyInfo[i].operationAddres, dissasemblyInfo[i].label, dissasemblyInfo[i].type != 0 ? dissasemblyInfo[i].data8 : dissasemblyInfo[i].type);
-                        dissasemblyOutputBuffer[dissasemblyInfo[i].operationAddres] = std::string(str);
+                    //prepare all decoded instructions to display. this have to be handled outside of this drawing 
+                    //function and only  refresh when needed
+                    if (fileLoaded) {
+                        for (int i = 0; i < dissasemblyInfo.size(); i++) {
+                            char str[20];
+                            sprintf(str, "%04X :: %s %04X",
+                                dissasemblyInfo[i].operationAddres, dissasemblyInfo[i].label, dissasemblyInfo[i].type != 0 ? dissasemblyInfo[i].data8 : dissasemblyInfo[i].type);
+                            dissasemblyOutputBuffer[dissasemblyInfo[i].operationAddres] = std::string(str);
+                        }
+                        for (int i = 0; i < 1024; i++) {
+                            ImGui::Text(dissasemblyOutputBuffer[i].c_str());
+                        }
                     }
-                    for (int i = 0; i < 1024; i++) {
-                        ImGui::Text(dissasemblyOutputBuffer[i].c_str());
+                    else {
+                        for (int i = 0; i < 1024; i++) {
+                            ImGui::Text("%04X :: ERROR", i);
+                        }
                     }
                     ImGui::EndTabItem();
                 }
