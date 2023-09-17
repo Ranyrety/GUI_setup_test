@@ -655,6 +655,7 @@ int main(int , char *[])
     runnerParams.callbacks.ShowGui =  [&isFileSelected, &path, &mpu, &editor, codeBuf, &memEditor] () {
         {
             bool executeNextOperation = ImGui::Shortcut(ImGuiKey_F10, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
+            showFileDialog = showFileDialog || ImGui::Shortcut(ImGuiModFlags_Ctrl | ImGuiKey_O, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
             if (ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
