@@ -10,3 +10,7 @@ add_subdirectory(m6800)
 add_subdirectory(utilities)
 add_subdirectory(unitTests)
 add_subdirectory(gui)
+
+if (EMSCRIPTEN)
+    include(${HELLOIMGUI_BASEPATH}/hello_imgui_cmake/emscripten/hello_imgui_emscripten_global_options.cmake)
+endif()

@@ -27,6 +27,7 @@ After cloning this repository run
 - libxinerama-dev
 - libxrandr-dev
 - libx11-dev
+- libxcursor-dev
 
 #### Emscripten on Linux
 

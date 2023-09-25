@@ -225,6 +225,7 @@ namespace FileDialog {
                 ImGui::TextUnformatted(std::to_string(files[i].file_size()).c_str());
                 ImGui::NextColumn();
                 ImGui::TextUnformatted(files[i].path().extension().string().c_str());
+#ifdef _WIN32
                 ImGui::NextColumn();
                 auto ftime = files[i].last_write_time();
                 auto st = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now());
@@ -236,6 +237,7 @@ namespace FileDialog {
                 ss << std::put_time(&mt, "%F %R");
 
                 ImGui::TextUnformatted(ss.str().c_str());
+#endif // WIN32
                 ImGui::NextColumn();
             }
             ImGui::EndChild();
@@ -275,7 +277,12 @@ namespace FileDialog {
                 ImGui::InputText("##newfolder", new_folder_name, sizeof(new_folder_name));
                 if (ImGui::Button("Create##1")) {
                     if (strlen(new_folder_name) <= 0) {
+#ifdef _WIN32
                         strcpy_s(new_folder_error, "Folder name can't be empty");
+#else
+                        strcpy(new_folder_error, "Folder name can't be empty");
+#endif // _WIN32
+
                     }
                     else {
                         std::string new_file_path = file_dialog_current_path + (file_dialog_current_path.back() == '\\' ? "" : "\\") + new_folder_name;
@@ -285,8 +292,13 @@ namespace FileDialog {
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Cancel##1")) {
+#ifdef _WIN32
                     strcpy_s(new_folder_name, "");
                     strcpy_s(new_folder_error, "");
+#else
+                    strcpy(new_folder_name, "");
+                    strcpy(new_folder_error, "");
+#endif
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::TextColored(ImColor(1.0f, 0.0f, 0.2f, 1.0f), new_folder_error);
@@ -316,7 +328,12 @@ namespace FileDialog {
                 file_dialog_file_select_index = 0;
                 file_dialog_folder_select_index = 0;
                 file_dialog_current_file = "";
+#ifdef _WIN32
                 strcpy_s(file_dialog_error, "");
+#else
+                strcpy(file_dialog_error, "");
+#endif // _WIN32
+
                 initial_path_set = false;
                 *open = false;
             };
@@ -328,23 +345,46 @@ namespace FileDialog {
             if (ImGui::Button("Choose")) {
                 if (type == FileDialogType::SelectFolder) {
                     if (file_dialog_current_folder == "") {
+#ifdef _WIN32
                         strcpy_s(file_dialog_error, "Error: You must select a folder!");
+#else
+                        strcpy(file_dialog_error, "Error: You must select a folder!");
+
+#endif // _WIN32
+
                     }
                     else {
                         auto path = file_dialog_current_path + (file_dialog_current_path.back() == '\\' ? "" : "\\") + file_dialog_current_file;
+#ifdef _WIN32
                         strcpy_s(buffer, path.length() + 1, path.c_str());
                         strcpy_s(file_dialog_error, "");
+#else
+                        strcpy(buffer, path.c_str());
+                        strcpy(file_dialog_error, "");
+#endif // _WIN32
+
                         reset_everything();
                     }
                 }
                 else if (type == FileDialogType::OpenFile) {
                     if (file_dialog_current_file == "") {
+#ifdef _WIN32
                         strcpy_s(file_dialog_error, "Error: You must select a file!");
+#else
+                        strcpy(file_dialog_error, "Error: You must select a file!");
+#endif // _WIN32
+
                     }
                     else {
                         auto path = file_dialog_current_path + (file_dialog_current_path.back() == '\\' ? "" : "\\") + file_dialog_current_file;
+#ifdef _WIN32
                         strcpy_s(buffer, path.length() + 1, path.c_str());
                         strcpy_s(file_dialog_error, "");
+#else
+                        strcpy(buffer, path.c_str());
+                        strcpy(file_dialog_error, "");
+#endif // _WIN32
+
                         reset_everything();
                     }
                 }

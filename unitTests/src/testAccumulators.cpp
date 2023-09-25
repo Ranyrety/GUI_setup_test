@@ -15,7 +15,8 @@ class testAccumulators : public ::testing::Test {
 };
 TEST_F(testAccumulators, abaCorrectFlagsNZ) {
         //assign
-            mpu.init(std::vector<uint8_t>{0x1B, 0x01});
+    auto v = std::vector<uint8_t>{ 0x1B, 0x01 };
+            mpu.init(v,0);
             mpu.setAccA(0x00);
             mpu.setAccB(0x01);
         //act
@@ -27,7 +28,8 @@ TEST_F(testAccumulators, abaCorrectFlagsNZ) {
 
 TEST_F(testAccumulators, abaSetVFlag) {
         //assign
-            mpu.init(std::vector<uint8_t>{0x1B, 0x01});
+    auto v = std::vector<uint8_t>{ 0x1B, 0x01 };
+            mpu.init(v,0);
             mpu.setAccA(0xFF);
             mpu.setAccB(0x01);
         //act
@@ -43,7 +45,8 @@ TEST_F(testAccumulators, abaSetVFlag) {
 
 TEST_F(testAccumulators, abaSetNVFlag) {
         //assign
-            mpu.init(std::vector<uint8_t>{0x1B, 0x01});
+    auto v = std::vector<uint8_t>{ 0x1B, 0x01 };
+            mpu.init(v,0);
             mpu.setAccA(0x22);
             mpu.setAccB(0x68);
         //act
@@ -58,7 +61,8 @@ TEST_F(testAccumulators, abaSetNVFlag) {
 
 TEST_F(testAccumulators, abaCorrectOverflowHandling) {
         //assign
-            mpu.init(std::vector<uint8_t>{0x1B, 0x01});
+    auto v = std::vector<uint8_t>{ 0x1B, 0x01 };
+            mpu.init(v,0);
             mpu.setAccA(0x79);
             mpu.setAccB(0x68);
         //act
@@ -74,7 +78,8 @@ TEST_F(testAccumulators, abaCorrectOverflowHandling) {
 
 TEST_F(testAccumulators, abaCorrectOverflowHandling02) {
         //assign
-            mpu.init(std::vector<uint8_t>{0x1B, 0x01});
+    auto v = std::vector<uint8_t>{ 0x1B, 0x01 };
+            mpu.init(v,0);
             mpu.setAccA(0x79);
             mpu.setAccB(0x98);
         //act
@@ -90,7 +95,8 @@ TEST_F(testAccumulators, abaCorrectOverflowHandling02) {
 
 TEST_F(testAccumulators, adcaImmidiateMode) {
     //assign
-    mpu.init(std::vector<uint8_t>{0x89, 0x01});
+    auto v = std::vector<uint8_t>{ 0x89, 0x01 };
+    mpu.init(v,0);
     mpu.setAccA(0x79);
     mpu.getCondCodeReg()->resetCFlag();
     //act
@@ -102,8 +108,8 @@ TEST_F(testAccumulators, adcaImmidiateMode) {
     EXPECT_EQ(mpu.getCondCodeReg()->V, 1);
     EXPECT_EQ(mpu.getCondCodeReg()->N, 0);
     EXPECT_EQ(mpu.getCondCodeReg()->C, 0);
-
-    mpu.init(std::vector<uint8_t>{0x89, 0x01});
+    
+    mpu.init(v,0);
     mpu.setAccA(0x79);
     mpu.getCondCodeReg()->setCFlag();
     //act
@@ -119,7 +125,8 @@ TEST_F(testAccumulators, adcaImmidiateMode) {
 
 TEST_F(testAccumulators, adcaDirectMode) {
     //assign
-    mpu.init(std::vector<uint8_t>{0x99, 0xF1});
+    auto v = std::vector<uint8_t>{ 0x99, 0xF1 };
+    mpu.init(v,0);
     mpu.setAccA(0x79);
     mpu.getCondCodeReg()->resetCFlag();
     mpu.writeData(0xF1, 0x01);
@@ -133,7 +140,7 @@ TEST_F(testAccumulators, adcaDirectMode) {
     EXPECT_EQ(mpu.getCondCodeReg()->N, 0);
     EXPECT_EQ(mpu.getCondCodeReg()->C, 0);
 
-    mpu.init(std::vector<uint8_t>{0x99, 0xF1});
+    mpu.init(v,0);
     mpu.setAccA(0x79);
     mpu.getCondCodeReg()->setCFlag();
     mpu.writeData(0xF1, 0x01);
@@ -150,7 +157,9 @@ TEST_F(testAccumulators, adcaDirectMode) {
 
 TEST_F(testAccumulators, adcbImmMode) {
     //assign
-    mpu.init(std::vector<uint8_t>{0xC9, 0x01});
+    auto v = std::vector<uint8_t>{ 0xC9, 0x01 };
+
+    mpu.init(v,0);
     mpu.setAccB(0x79);
     mpu.getCondCodeReg()->resetCFlag();
     //act
@@ -163,7 +172,7 @@ TEST_F(testAccumulators, adcbImmMode) {
     EXPECT_EQ(mpu.getCondCodeReg()->N, 0);
     EXPECT_EQ(mpu.getCondCodeReg()->C, 0);
 
-    mpu.init(std::vector<uint8_t>{0xC9, 0x01});
+    mpu.init(v,0);
     mpu.setAccB(0x79);
     mpu.getCondCodeReg()->setCFlag();
     //act
@@ -178,7 +187,8 @@ TEST_F(testAccumulators, adcbImmMode) {
 }
 TEST_F(testAccumulators, adcbDirectMode) {
     //assign
-    mpu.init(std::vector<uint8_t>{0xD9, 0xF1});
+    auto v = std::vector<uint8_t>{ 0xD9, 0xF1 };
+    mpu.init(v,0);
     mpu.setAccB(0x79);
     mpu.getCondCodeReg()->resetCFlag();
     mpu.writeData(0xF1, 0x01);
@@ -192,7 +202,7 @@ TEST_F(testAccumulators, adcbDirectMode) {
     EXPECT_EQ(mpu.getCondCodeReg()->N, 0);
     EXPECT_EQ(mpu.getCondCodeReg()->C, 0);
 
-    mpu.init(std::vector<uint8_t>{0xD9, 0xF1});
+    mpu.init(v,0);
     mpu.setAccB(0x79);
     mpu.getCondCodeReg()->setCFlag();
     mpu.writeData(0xF1, 0x01);

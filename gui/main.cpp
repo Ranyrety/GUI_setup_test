@@ -28,9 +28,8 @@ void itoab(uint8_t val, char* buff) {
 ImFont * gCustomFont = nullptr;
 void MyLoadFonts()
 {
-
     HelloImGui::ImGuiDefaultSettings::LoadDefaultFont_WithFontAwesomeIcons(); // The font that is loaded first is the default font
-    gCustomFont = HelloImGui::LoadFontTTF("DroidSans.ttf", 20.f); // will be loaded from the assets folder
+    gCustomFont = HelloImGui::LoadFontTTF("fonts/DroidSans.ttf", 20.f); // will be loaded from the assets folder
 }
 
 struct DissasemblyInfo {
@@ -603,8 +602,14 @@ bool dirty;
 uint8_t* buff;
 //load and parse hex file, prepare disassembly
 void load(const char* path, Emulator::Mpu& mpu) {
+#ifdef __EMSCRIPTEN__
+    printf("DEBUG: =%s\n", "Inside load function");
+#endif // __EMSCRIPTEN__
     hexRecords = parseHex(path);
     if (!hexRecords.empty()) {
+#ifdef __EMSCRIPTEN__
+        printf("DEBUG: =%s\n", "Hex Records aren't empty");
+#endif // __EMSCRIPTEN__
         mpu.init(hexRecords[0].data, hexRecords[0].address);
         mpu.setAccA(0x00);
         mpu.setAccB(0x01);
@@ -624,17 +629,21 @@ void load(const char* path, Emulator::Mpu& mpu) {
             sprintf(label, "%04X :: %s ", i, "ERROR");
             dissasemblyOutputBuffer.emplace_back(std::string(label));
         }
+#ifdef __EMSCRIPTEN__
+        printf("DEBUG: =%s\n", "Leaving load function");
+#endif // __EMSCRIPTEN__
         fileLoaded = true;
     }
 }
 
+    HelloImGui::RunnerParams runnerParams;
 int main(int , char *[])
 {
-    bool showDemo = true;
-    HelloImGui::RunnerParams runnerParams;
-    runnerParams.appWindowParams.windowTitle = "M6800 - emulator gui demo";
-    runnerParams.appWindowParams.windowGeometry.size = { 800, 600};
-    runnerParams.callbacks.LoadAdditionalFonts = MyLoadFonts;
+    runnerParams.appWindowParams.windowTitle = "M6800_emulator_gui_demo";
+    runnerParams.appWindowParams.windowGeometry.size = { 1200,900 };
+    runnerParams.imGuiWindowParams.tweakedTheme.Theme = ImGuiTheme::ImGuiTheme_ImGuiColorsDark;
+    runnerParams.imGuiWindowParams.showMenuBar = false;
+    runnerParams.imGuiWindowParams.showStatusBar = true;
             MemoryEditor memEditor;
             memEditor.Cols = 8;
             char* codeBuf = (char*)calloc(1024, sizeof(uint8_t));
@@ -651,9 +660,16 @@ int main(int , char *[])
             bool isFileSelected , isFileDialogOpen = false;
             char path[128];
             path[127] = '\n';
+#ifdef __EMSCRIPTEN__
+            printf("DEBUG: =%s\n", "Done initializing emulator stuff");
+#endif // __EMSCRIPTEN__
+
                 //All ui is currently draw in this function
     runnerParams.callbacks.ShowGui =  [&isFileSelected, &path, &mpu, &editor, codeBuf, &memEditor] () {
         {
+#ifdef __EMSCRIPTEN__
+            printf("DEBUG: =%s\n", "Starting gui function");
+#endif // __EMSCRIPTEN__
             bool executeNextOperation = ImGui::Shortcut(ImGuiKey_F10, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
             showFileDialog = showFileDialog || ImGui::Shortcut(ImGuiModFlags_Ctrl | ImGuiKey_O, ImGui::GetActiveID(), ImGuiInputFlags_RouteGlobalHigh);
             if (ImGui::BeginMainMenuBar())
@@ -683,6 +699,10 @@ int main(int , char *[])
             if (showFileDialog) {
                 FileDialog::ShowFileDialog(&showFileDialog, path, 128);
                 if (!showFileDialog) {
+#ifdef __EMSCRIPTEN__
+                    printf("DEBUG: %s\n", "About to load new hex file");
+#endif // __EMSCRIPTEN__
+
                     load(path, mpu);
                 }
             }
@@ -799,6 +819,7 @@ int main(int , char *[])
             ImGui::EndGroup();
         }
         };
+    runnerParams.callbacks.LoadAdditionalFonts = MyLoadFonts;
     HelloImGui::Run(runnerParams);
     return 0;
 }
